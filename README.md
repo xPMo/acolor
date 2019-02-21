@@ -1,4 +1,4 @@
-#ACol: A Colorizer framework with community scripts.
+# ACol: A Colorizer framework with community scripts.
 
 Inspired by [grc, the generic colorizer](https://github.com/garabik/grc).
 
