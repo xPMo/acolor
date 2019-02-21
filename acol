@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+PREFIX="${PREFIX:-/usr}"
+out=0
+err=0
+in=0
+help(){
+	cat >&2 << EOF
+Usage: $0 [ -i ] [ -f str ] [ -e ] [ -o ] [ -h ]  command [ args ... ]
+
+	-i       colorize from stdin instead of command
+	-e       colorize stderr instead of stdout
+	-o       force colorize stdout
+	-f str   force colorization using the given file or spec
+	-h       show this help
+EOF
+}
+
+while getopts 'ieohf:' o; do
+	case "$o" in
+		i) in=1 ;;
+		e) err=2 ;;
+		o) out=1 ;;
+		f) spec="$OPTARG" ;;
+		h)
+			help
+			exit 0
+		;;
+		*) 
+			help
+			exit 1
+		;;
+	esac
+done
+shift "$(( OPTIND - 1 ))"
+if ! (( $# | in )); then
+	echo >&2 "No command specified."
+	help
+	exit 1
+fi
+
+shopt -s nullglob
+IFS=':'
+if [[ "$spec" =~ / ]]; then
+	colorizer="$spec"
+else
+	spec="${spec:-"$1"}"
+	for d in $XDG_CONFIG_DIRS $XDG_CONFIG_HOME "$HOME/.config" "$HOME/.local/lib" \
+		"/etc" "$PREFIX/local/lib" "$PREFIX/lib"
+	do
+		for f in "$d/awc/$spec"*; do
+			if [[ "$f" =~ $spec(\..*)?$ ]] &&  [[ -x "$f" ]]; then
+				colorizer="$f"
+				break 2
+			fi
+		done
+	done
+fi
+
+if (( in )); then
+	[[ -z "${f:-}" ]] && exec cat
+	exec "$f"
+fi
+# no colorizer found, just exec
+[[ -z "${colorizer:-}" ]] && exec "$@"
+
+if command -v unbuffer >/dev/null; then
+	set -- unbuffer "$@"
+fi
+case "$(( err | out ))" in
+	2) "$@" 2> >("$colorizer" >&2) ;;
+	3) "$@" |& "$colorizer" ;;
+	*) "$@" | "$colorizer" ;;
+esac
