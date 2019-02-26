@@ -39,16 +39,16 @@ if ! (( $# | in )); then
 fi
 
 shopt -s nullglob
-IFS=':'
 if [[ "$spec" =~ / ]]; then
 	colorizer="$spec"
 else
 	spec="${spec:-"$1"}"
+	IFS=':'
 	for d in $XDG_CONFIG_DIRS $XDG_CONFIG_HOME "$HOME/.config" "$HOME/.local/lib" \
 		"/etc" "$PREFIX/local/lib" "$PREFIX/lib"
 	do
-		for f in "$d/awc/$spec"*; do
-			if [[ "$f" =~ $spec(\..*)?$ ]] &&  [[ -x "$f" ]]; then
+		for f in "$d/awc/$spec."*; do
+			if [[ -x "$f" ]]; then
 				colorizer="$f"
 				break 2
 			fi
