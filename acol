@@ -7,7 +7,7 @@ help(){
 	cat >&2 << EOF
 Usage: $0 [ -i ] [ -f str ] [ -e ] [ -o ] [ -h ]  command [ args ... ]
 
-	-i       colorize from stdin instead of command
+	-i       colorize from stdin instead of command (combine with -f)
 	-e       colorize stderr instead of stdout
 	-o       force colorize stdout
 	-f str   force colorization using the given file or spec
@@ -57,8 +57,8 @@ else
 fi
 
 if (( in )); then
-	[[ -z "${f:-}" ]] && exec cat
-	exec "$f"
+	[[ -z "${colorizer:-}" ]] && exec cat
+	exec "$colorizer"
 fi
 # no colorizer found, just exec
 [[ -z "${colorizer:-}" ]] && exec "$@"
