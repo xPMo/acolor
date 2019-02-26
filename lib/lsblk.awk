@@ -12,7 +12,7 @@ NR==1 && /^[A-Z][A-Z][A-Z]/ {
 	for (i=1;i<=n;i++) {
 		switch(a[i]) {
 			# Type
-			case /^disk$/ : print "\033[38;5;14m"; break
+			case /^disk$/ : print "\033[38;5;6m\033[1m"; break
 			case /^part$/ : print "\033[38;5;6m"; break
 			case /^loop$/ : print "\033[38;5;1m"; break
 			case /^lvm$/ : print "\033[38;5;4m"; break
