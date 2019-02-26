@@ -3,4 +3,4 @@
 for cmd in du env lsblk lspci nmap; do
 	command -v "$cmd" > /dev/null && alias "$cmd"="acol $cmd"
 done
-alias ls='acol ls --color'
+alias ls='acol ls --color=always'
