@@ -47,7 +47,7 @@ else
 	for d in $XDG_CONFIG_DIRS $XDG_CONFIG_HOME "$HOME/.config" "$HOME/.local/lib" \
 		"/etc" "$PREFIX/local/lib" "$PREFIX/lib"
 	do
-		for f in "$d/awc/$spec."*; do
+		for f in "$d/acolor/$spec."*; do
 			if [[ -x "$f" ]]; then
 				colorizer="$f"
 				break 2
