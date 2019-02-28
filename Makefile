@@ -4,8 +4,9 @@ LIBS = $(wildcard lib/*)
 .PHONY: install
 install:
 	mkdir -p $(PREFIX)/lib/acolor
+	mkdir -p $(PREFIX)/bin
 	install -m=755 $(LIBS) $(PREFIX)/lib/acolor
-	install -m=755 acol $(PREFIX)/bin
+	install -m=755 acol $(PREFIX)/bin/acol
 
 .PHONY: uninstall
 uninstall:
