@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 PREFIX="${PREFIX:-/usr}"
 in=0
+IFS=':'
+confs=( $XDG_CONFIG_DIRS $XDG_CONFIG_HOME "$HOME/.config" "$HOME/.local/lib" \
+	"/etc" "$PREFIX/local/lib" "$PREFIX/lib" )
+IFS=
 help(){
 	cat >&2 << EOF
 Usage: $0 [ -i ] [ -o str ] [ -e str ] [ -O str ] [ -h ]  command [ args ... ]
@@ -11,9 +15,20 @@ Usage: $0 [ -i ] [ -o str ] [ -e str ] [ -O str ] [ -h ]  command [ args ... ]
 	-O str   colorize both stdour and stderr the given file or spec
 	-h       show this help
 EOF
+	(( ${#1} )) || return
+	cat >&2 << EOF
+
+By default, $0 will colorize the command's stdout with command.1.*,
+and the command's stderr with command.2.*.*.
+
+The paths $0 will look for with your current environment are:
+EOF
+	for p in "${confs[@]}"; do
+		printf >&2 '\t%s\n' "$p"
+	done
 }
 
-while getopts 'ie:o:O:h' o; do
+while getopts 'ie:o:O:hH' o; do
 	case "$o" in
 		i) in=1 ;;
 		e) espec="$OPTARG" ;;
@@ -24,6 +39,10 @@ while getopts 'ie:o:O:h' o; do
 		;;
 		h)
 			help
+			exit 0
+		;;
+		H)
+			help 1
 			exit 0
 		;;
 		*) 
@@ -47,9 +66,7 @@ getf(){ # cmd postfix spec
 	fi
 	[[ -z "$3" ]] && set -- "$1" "$2" "$1.$2"
 	IFS=':'
-	for d in $XDG_CONFIG_DIRS $XDG_CONFIG_HOME "$HOME/.config" "$HOME/.local/lib" \
-		"/etc" "$PREFIX/local/lib" "$PREFIX/lib"
-	do
+	for d in "${confs[@]}"; do
 
 		for f in "$d/acolor/$3"*; do
 			if [[ -x "$f" ]]; then
