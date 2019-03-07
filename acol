@@ -43,15 +43,15 @@ getf(){ # cmd postfix spec
 		echo "$3"
 		return
 	fi
-	set -- "$@" "$1.$2"
+	[[ -z "$3" ]] && set -- "$1" "$2" "$1.$2"
 	IFS=':'
 	for d in $XDG_CONFIG_DIRS $XDG_CONFIG_HOME "$HOME/.config" "$HOME/.local/lib" \
 		"/etc" "$PREFIX/local/lib" "$PREFIX/lib"
 	do
 
-		for f in "$d/acolor/$1"*; do
+		for f in "$d/acolor/$3"*; do
 			if [[ -x "$f" ]]; then
-				echo "$f"
+				echo "$f" | tee /dev/stderr
 				return
 			fi
 		done
@@ -68,13 +68,9 @@ if (( in )); then
 	exec "$o"
 fi
 # no colorizer found, just exec
-[[ -z "${colorizer:-}" ]] && exec "$@"
+(( ${#o} + ${#e} )) || exec "$@"
 
 if command -v unbuffer >/dev/null; then
 	set -- unbuffer "$@"
 fi
-case "$(( err | out ))" in
-	2) "$@" 2> >("$e" >&2) | "$o" ;;
-	3) "$@" |& "$colorizer" ;;
-	*) "$@" | "$colorizer" ;;
-esac
+"$@" 2> >("$e" >&2) | "$o"
