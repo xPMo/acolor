@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
 PREFIX="${PREFIX:-/usr}"
-out=0
-err=0
 in=0
 help(){
 	cat >&2 << EOF
-Usage: $0 [ -i ] [ -f str ] [ -e ] [ -o ] [ -h ]  command [ args ... ]
+Usage: $0 [ -i ] [ -o str ] [ -e str ] [ -O str ] [ -h ]  command [ args ... ]
 
 	-i       colorize from stdin instead of command (combine with one of -[oeO]
 	-o str   colorize stdout using the given file or spec
@@ -15,11 +13,15 @@ Usage: $0 [ -i ] [ -f str ] [ -e ] [ -o ] [ -h ]  command [ args ... ]
 EOF
 }
 
-while getopts 'ieohf:' o; do
+while getopts 'ie:o:O:h' o; do
 	case "$o" in
 		i) in=1 ;;
 		e) espec="$OPTARG" ;;
 		o) ospec="$OPTARG" ;;
+		O)
+			ospec="$OPTARG"
+			espec="$OPTARG"
+		;;
 		h)
 			help
 			exit 0
