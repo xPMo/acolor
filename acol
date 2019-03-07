@@ -7,10 +7,10 @@ help(){
 	cat >&2 << EOF
 Usage: $0 [ -i ] [ -f str ] [ -e ] [ -o ] [ -h ]  command [ args ... ]
 
-	-i       colorize from stdin instead of command (combine with -f)
-	-e       colorize stderr instead of stdout
-	-o       force colorize stdout
-	-f str   force colorization using the given file or spec
+	-i       colorize from stdin instead of command (combine with one of -[oeO]
+	-o str   colorize stdout using the given file or spec
+	-e str   colorize stderr using the given file or spec
+	-O str   colorize both stdour and stderr the given file or spec
 	-h       show this help
 EOF
 }
@@ -18,9 +18,8 @@ EOF
 while getopts 'ieohf:' o; do
 	case "$o" in
 		i) in=1 ;;
-		e) err=2 ;;
-		o) out=1 ;;
-		f) spec="$OPTARG" ;;
+		e) espec="$OPTARG" ;;
+		o) ospec="$OPTARG" ;;
 		h)
 			help
 			exit 0
@@ -39,26 +38,34 @@ if ! (( $# | in )); then
 fi
 
 shopt -s nullglob
-if [[ "$spec" =~ / ]]; then
-	colorizer="$spec"
-else
-	spec="${spec:-"$1"}"
+getf(){ # cmd postfix spec 
+	if [[ "$3" =~ / ]]; then
+		echo "$3"
+		return
+	fi
+	set -- "$@" "$1.$2"
 	IFS=':'
 	for d in $XDG_CONFIG_DIRS $XDG_CONFIG_HOME "$HOME/.config" "$HOME/.local/lib" \
 		"/etc" "$PREFIX/local/lib" "$PREFIX/lib"
 	do
-		for f in "$d/acolor/$spec."*; do
+
+		for f in "$d/acolor/$1"*; do
 			if [[ -x "$f" ]]; then
-				colorizer="$f"
-				break 2
+				echo "$f"
+				return
 			fi
 		done
 	done
-fi
+	echo cat
+	return 1
+}
+
+o="$(getf "$1" 1 "$ospec")"
+e="$(getf "$1" 2 "$espec")"
 
 if (( in )); then
-	[[ -z "${colorizer:-}" ]] && exec cat
-	exec "$colorizer"
+	exec 2> >("$e" >&2)
+	exec "$o"
 fi
 # no colorizer found, just exec
 [[ -z "${colorizer:-}" ]] && exec "$@"
@@ -67,7 +74,7 @@ if command -v unbuffer >/dev/null; then
 	set -- unbuffer "$@"
 fi
 case "$(( err | out ))" in
-	2) "$@" 2> >("$colorizer" >&2) ;;
+	2) "$@" 2> >("$e" >&2) | "$o" ;;
 	3) "$@" |& "$colorizer" ;;
 	*) "$@" | "$colorizer" ;;
 esac
