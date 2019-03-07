@@ -71,7 +71,7 @@ getf(){ # cmd postfix spec
 
 		for f in "$d/acolor/$3"*; do
 			if [[ -x "$f" ]]; then
-				echo "$f" | tee /dev/stderr
+				echo "$f"
 				return
 			fi
 		done
