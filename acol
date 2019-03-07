@@ -20,7 +20,9 @@ EOF
 	cat >&2 << EOF
 
 By default, $0 will colorize the command's stdout with \`\`command.1.*'',
-and the command's stderr with \`\`command.2.*''.
+and the command's stderr with \`\`command.2.*''. If a spec is specified (with -[oeO]),
+then \`\`spec.*'' will be searched for instead. If a spec contains a \`/', then it is
+considered to be a file.
 
 The paths $0 will look for with your current environment are:
 EOF
