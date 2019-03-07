@@ -7,13 +7,14 @@ confs=( $XDG_CONFIG_DIRS $XDG_CONFIG_HOME "$HOME/.config" "$HOME/.local/lib" \
 IFS=
 help(){
 	cat >&2 << EOF
-Usage: $0 [ -i ] [ -o str ] [ -e str ] [ -O str ] [ -h ]  command [ args ... ]
+Usage: $0 [ -i ] [ -o str ] [ -e str ] [ -O str ] [ -h | -H ]  command [ args ... ]
 
 	-i       colorize from stdin instead of command (combine with one of -[oeO]
 	-o str   colorize stdout using the given file or spec
 	-e str   colorize stderr using the given file or spec
 	-O str   colorize both stdour and stderr the given file or spec
-	-h       show this help
+	-h       show this help and exit
+	-H       show more help and exit
 EOF
 	(( ${#1} )) || return
 	cat >&2 << EOF
