@@ -19,8 +19,8 @@ EOF
 	(( ${#1} )) || return
 	cat >&2 << EOF
 
-By default, $0 will colorize the command's stdout with command.1.*,
-and the command's stderr with command.2.*.*.
+By default, $0 will colorize the command's stdout with \`\`command.1.*'',
+and the command's stderr with \`\`command.2.*''.
 
 The paths $0 will look for with your current environment are:
 EOF
