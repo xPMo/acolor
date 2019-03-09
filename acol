@@ -95,4 +95,6 @@ fi
 if command -v unbuffer >/dev/null; then
 	set -- unbuffer "$@"
 fi
+# set COMMAND to the command being run (quoted)
+export COMMAND="${*@Q}"
 "$@" 2> >("$e" >&2) | "$o"
