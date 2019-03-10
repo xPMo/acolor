@@ -1,28 +1,51 @@
 #!/usr/bin/env bash
 PREFIX="${PREFIX:-/usr}"
-out=0
-err=0
 in=0
+IFS=':'
+confs=( $XDG_CONFIG_DIRS $XDG_CONFIG_HOME "$HOME/.config" "$HOME/.local/lib" \
+	"/etc" "$PREFIX/local/lib" "$PREFIX/lib" )
+IFS=
 help(){
 	cat >&2 << EOF
-Usage: $0 [ -i ] [ -f str ] [ -e ] [ -o ] [ -h ]  command [ args ... ]
+Usage: $0 [ -i ] [ -o str ] [ -e str ] [ -O str ] [ -h | -H ]  command [ args ... ]
 
-	-i       colorize from stdin instead of command (combine with -f)
-	-e       colorize stderr instead of stdout
-	-o       force colorize stdout
-	-f str   force colorization using the given file or spec
-	-h       show this help
+	-i       colorize from stdin instead of command (combine with one of -[oeO]
+	-o str   colorize stdout using the given file or spec
+	-e str   colorize stderr using the given file or spec
+	-O str   colorize both stdour and stderr the given file or spec
+	-h       show this help and exit
+	-H       show more help and exit
 EOF
+	(( ${#1} )) || return
+	cat >&2 << EOF
+
+By default, $0 will colorize the command's stdout with \`\`command.1.*'',
+and the command's stderr with \`\`command.2.*''. If a spec is specified (with -[oeO]),
+then \`\`spec.*'' will be searched for instead. If a spec contains a \`/', then it is
+considered to be a file.
+
+The paths $0 will look for with your current environment are:
+EOF
+	for p in "${confs[@]}"; do
+		printf >&2 '\t%s/acolor\n' "$p"
+	done
 }
 
-while getopts 'ieohf:' o; do
+while getopts 'ie:o:O:hH' o; do
 	case "$o" in
 		i) in=1 ;;
-		e) err=2 ;;
-		o) out=1 ;;
-		f) spec="$OPTARG" ;;
+		e) espec="$OPTARG" ;;
+		o) ospec="$OPTARG" ;;
+		O)
+			ospec="$OPTARG"
+			espec="$OPTARG"
+		;;
 		h)
 			help
+			exit 0
+		;;
+		H)
+			help 1
 			exit 0
 		;;
 		*) 
@@ -39,35 +62,39 @@ if ! (( $# | in )); then
 fi
 
 shopt -s nullglob
-if [[ "$spec" =~ / ]]; then
-	colorizer="$spec"
-else
-	spec="${spec:-"$1"}"
+getf(){ # cmd postfix spec 
+	if [[ "$3" =~ / ]]; then
+		echo "$3"
+		return
+	fi
+	[[ -z "$3" ]] && set -- "$1" "$2" "$1.$2"
 	IFS=':'
-	for d in $XDG_CONFIG_DIRS $XDG_CONFIG_HOME "$HOME/.config" "$HOME/.local/lib" \
-		"/etc" "$PREFIX/local/lib" "$PREFIX/lib"
-	do
-		for f in "$d/acolor/$spec."*; do
+	for d in "${confs[@]}"; do
+
+		for f in "$d/acolor/$3"*; do
 			if [[ -x "$f" ]]; then
-				colorizer="$f"
-				break 2
+				echo "$f"
+				return
 			fi
 		done
 	done
-fi
+	echo cat
+	return 1
+}
+
+o="$(getf "$1" 1 "$ospec")"
+e="$(getf "$1" 2 "$espec")"
 
 if (( in )); then
-	[[ -z "${colorizer:-}" ]] && exec cat
-	exec "$colorizer"
+	exec 2> >("$e" >&2)
+	exec "$o"
 fi
 # no colorizer found, just exec
-[[ -z "${colorizer:-}" ]] && exec "$@"
+(( ${#o} + ${#e} )) || exec "$@"
 
 if command -v unbuffer >/dev/null; then
 	set -- unbuffer "$@"
 fi
-case "$(( err | out ))" in
-	2) "$@" 2> >("$colorizer" >&2) ;;
-	3) "$@" |& "$colorizer" ;;
-	*) "$@" | "$colorizer" ;;
-esac
+# set COMMAND to the command being run (quoted)
+export COMMAND="${*@Q}"
+"$@" 2> >("$e" >&2) | "$o"
