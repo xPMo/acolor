@@ -92,9 +92,11 @@ fi
 # no colorizer found, just exec
 (( ${#o} + ${#e} )) || exec "$@"
 
+# set COMMAND to the command being run (quoted)
+export COMMAND=${*@Q}
+
 if command -v unbuffer >/dev/null; then
 	set -- unbuffer "$@"
 fi
-# set COMMAND to the command being run (quoted)
-export COMMAND="${*@Q}"
+
 "$@" 2> >("$e" >&2) | "$o"
