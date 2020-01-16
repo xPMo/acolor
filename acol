@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
 PREFIX="${PREFIX:-/usr}"
 in=0
-IFS=':'
-confs=( $XDG_CONFIG_DIRS $XDG_CONFIG_HOME "$HOME/.config" "$HOME/.local/lib" \
-	"/etc" "$PREFIX/local/lib" "$PREFIX/lib" )
-IFS=
+IFS=':' read -ra confs <<< "$XDG_CONFIG_DIRS"
+confs+=("${XDG_CONFIG_HOME:-$HOME/.config}" "$HOME/.local/lib" "/etc" "$PREFIX/local/lib" "$PREFIX/lib")
 help(){
 	cat >&2 << EOF
 Usage: $0 [ -i ] [ -o str ] [ -e str ] [ -O str ] [ -h | -H ]  command [ args ... ]
