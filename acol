@@ -81,20 +81,20 @@ getf(){ # cmd postfix spec
 }
 
 getf "$1" 1 "$ospec"
-o="$REPLY"
+stdout_cmd="$REPLY"
 getf "$1" 2 "$espec"
-e="$REPLY"
+stderr_cmd="$REPLY"
 
 if (( in )); then
-	exec 2> >("$e" >&2)
-	exec "$o"
+	exec 2> >("$stderr_cmd" >&2)
+	exec "$stdout_cmd"
 fi
 # no colorizer found, just exec
-(( ${#o} + ${#e} )) || exec "$@"
+(( ${#stdout_cmd} + ${#stderr_cmd} )) || exec "$@"
 
 if command -v unbuffer >/dev/null; then
 	set -- unbuffer "$@"
 fi
 # set COMMAND to the command being run (quoted)
 export COMMAND="${*@Q}"
-"$@" 2> >("$e" >&2) | "$o"
+"$@" 2> >("$stderr_cmd" >&2) | "$stdout_cmd"
