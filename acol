@@ -62,7 +62,7 @@ fi
 shopt -s nullglob
 getf(){ # cmd postfix spec 
 	if [[ "$3" =~ / ]]; then
-		echo "$3"
+		REPLY="$3"
 		return
 	fi
 	[[ -z "$3" ]] && set -- "$1" "$2" "$1.$2"
@@ -71,7 +71,7 @@ getf(){ # cmd postfix spec
 
 		for f in "$d/acolor/$3"*; do
 			if [[ -x "$f" ]]; then
-				echo "$f"
+				REPLY="$f"
 				return
 			fi
 		done
@@ -80,8 +80,10 @@ getf(){ # cmd postfix spec
 	return 1
 }
 
-o="$(getf "$1" 1 "$ospec")"
-e="$(getf "$1" 2 "$espec")"
+getf "$1" 1 "$ospec"
+o="$REPLY"
+getf "$1" 2 "$espec"
+e="$REPLY"
 
 if (( in )); then
 	exec 2> >("$e" >&2)
