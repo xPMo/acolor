@@ -71,14 +71,14 @@ getf(){ # cmd postfix spec
 		REPLY="$3"
 		return
 	elif [[ -n "$3" ]]; then
-		# Test [spec] [spec].[fd] [prog].[spec].[fd]
-		set -- "$3" "$3.$2" "$1.$3.$2"
+		# Test [spec].[fd] [prog].[spec].[fd] [spec]
+		set -- "$3.$2" "$1.$3.$2" "$3"
 	else
 		set -- "$1.$2"
 	fi
 	IFS=':'
-	for d in "${confs[@]}"; do
-		for arg; do
+	for arg; do
+		for d in "${confs[@]}"; do
 			for f in "$d/acolor/$arg"*; do
 				if [[ -x "$f" ]]; then
 					REPLY="$f"
