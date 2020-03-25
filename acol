@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 PREFIX="${PREFIX:-/usr}"
 in=0
+unbuffer=1
 IFS=':' read -ra confs <<< "$XDG_CONFIG_DIRS"
 confs+=("${XDG_CONFIG_HOME:-$HOME/.config}" "$HOME/.local/lib" "/etc" "$PREFIX/local/lib" "$PREFIX/lib")
 help(){
 	cat >&2 << EOF
 Usage: $0 [ -i ] [ -o str ] [ -e str ] [ -O str ] [ -h | -H ]  command [ args ... ]
 
+	-u       Force using unbuffer if installed
+	-U       Don't use unbuffer
 	-i       colorize from stdin instead of command (combine with one of -[oeO]
 	-o str   colorize stdout using the given file or spec
 	-e str   colorize stderr using the given file or spec
@@ -29,7 +32,7 @@ EOF
 	done
 }
 
-while getopts 'ie:o:O:hH' o; do
+while getopts 'ie:o:O:uUhH' o; do
 	case "$o" in
 		i) in=1 ;;
 		e) espec="$OPTARG" ;;
@@ -38,6 +41,8 @@ while getopts 'ie:o:O:hH' o; do
 			ospec="$OPTARG"
 			espec="$OPTARG"
 		;;
+		u) unbuffer=2  ;;
+		U) unbuffer=0 ;;
 		h)
 			help
 			exit 0
@@ -92,8 +97,8 @@ fi
 # no colorizer found, just exec
 (( ${#stdout_cmd} + ${#stderr_cmd} )) || exec "$@"
 
-if command -v unbuffer >/dev/null; then
-	set -- unbuffer "$@"
+if ((unbuffer == 2)) || [[ -t 0 ]] && ((unbuffer)); then 
+	command -v unbuffer >/dev/null && set -- unbuffer "$@"
 fi
 # set COMMAND to the command being run (quoted)
 export COMMAND="${*@Q}"
