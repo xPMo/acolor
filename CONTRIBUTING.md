@@ -4,6 +4,11 @@ but will come with a change to this file.*
 - Account for possible alternate field orderings (for example `ps -o`).
 - Group by type (see `lspci.awk`: bridge vs controller vs device vs other)
 
+# Environment variables
+
+You can access the command passed to `acol` in the environment variable `COMMAND`.
+It is quoted by the Bashism `${@Q}`
+
 # Patterns
 
 To keep coloring styles consistent across scripts,
