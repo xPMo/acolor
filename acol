@@ -66,19 +66,25 @@ fi
 
 shopt -s nullglob
 getf(){ # cmd postfix spec 
-	if [[ "$3" =~ / ]]; then
+	local d f arg
+	if [[ "$3" = */* ]]; then
 		REPLY="$3"
 		return
+	elif [[ -n "$3" ]]; then
+		# Test [spec] [spec].[fd] [prog].[spec].[fd]
+		set -- "$3" "$3.$2" "$1.$3.$2"
+	else
+		set -- "$1.$2"
 	fi
-	[[ -z "$3" ]] && set -- "$1" "$2" "$1.$2"
 	IFS=':'
 	for d in "${confs[@]}"; do
-
-		for f in "$d/acolor/$3"*; do
-			if [[ -x "$f" ]]; then
-				REPLY="$f"
-				return
-			fi
+		for arg; do
+			for f in "$d/acolor/$arg"*; do
+				if [[ -x "$f" ]]; then
+					REPLY="$f"
+					return
+				fi
+			done
 		done
 	done
 	echo cat
@@ -97,7 +103,7 @@ fi
 # no colorizer found, just exec
 (( ${#stdout_cmd} + ${#stderr_cmd} )) || exec "$@"
 
-if ((unbuffer == 2)) || [[ -t 0 ]] && ((unbuffer)); then 
+if ((unbuffer == 2)) || [[ -t 0 ]] && ((unbuffer)); then
 	command -v unbuffer >/dev/null && set -- unbuffer "$@"
 fi
 # set COMMAND to the command being run (quoted)
