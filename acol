@@ -87,7 +87,6 @@ getf(){ # cmd postfix spec
 			done
 		done
 	done
-	echo cat
 	return 1
 }
 
