@@ -1,5 +1,5 @@
 PREFIX ?= /usr/local
-LIBS = $(wildcard lib/*)
+LIBS = $(wildcard share/*)
 
 .PHONY: install
 install:
