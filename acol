@@ -1,9 +1,15 @@
 #!/usr/bin/env bash
 PREFIX="${PREFIX:-/usr}"
 in=0
-unbuffer=1
-IFS=':' read -ra confs <<< "$XDG_CONFIG_DIRS"
-confs+=("${XDG_CONFIG_HOME:-$HOME/.config}" "$HOME/.local/lib" "/etc" "$PREFIX/local/lib" "$PREFIX/lib")
+
+set -f # disable globbing
+IFS=':'
+#shellcheck disable=2206
+confs=( $XDG_CONFIG_DIRS $XDG_CONFIG_HOME "$HOME/.config" "$HOME/.local/lib" \
+	"/etc" "$PREFIX/local/lib" "$PREFIX/lib" )
+IFS=
+set +f # re-enable globbing
+
 help(){
 	cat >&2 << EOF
 Usage: $0 [ -i ] [ -o str ] [ -e str ] [ -O str ] [ -h | -H ]  command [ args ... ]
