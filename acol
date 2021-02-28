@@ -5,8 +5,8 @@ in=0
 set -f # disable globbing
 IFS=':'
 #shellcheck disable=2206
-confs=( $XDG_CONFIG_DIRS $XDG_CONFIG_HOME "$HOME/.config" "$HOME/.local/lib" \
-	"/etc" "$PREFIX/local/lib" "$PREFIX/lib" )
+confs=( $XDG_CONFIG_DIRS $XDG_CONFIG_HOME "$HOME/.config" "$HOME/.local/share" \
+	"/etc" "$PREFIX/local/share" "$PREFIX/share" )
 IFS=
 set +f # re-enable globbing
 
