@@ -1,7 +1,8 @@
-#!/usr/bin/env -S awk -v ORS= -f
+#!/usr/bin/env -S awk -f
 BEGIN {
 	FS="\t"
 	OFS="\t"
+	ORS=""
 }
 /./{
 	sub(/^[0-9\.,]+[K]/, "\033[38;5;2m&\033[0m", $1) ||

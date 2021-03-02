@@ -1,4 +1,7 @@
-#!/usr/bin/env -S gawk -v ORS= -f
+#!/usr/bin/env -S gawk -f
+BEGIN{
+	ORS=""
+}
 match($0, /^(..):(..)\.(.) ([^:]*: )?(.*)/, a) {
 	# Address
 	print "\033[38;5;10m" a[1] "\033[0m:\033[38;5;11m" a[2] "\033[0m.\033[38;5;1m" a[3] "\033[0m " 

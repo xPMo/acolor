@@ -1,4 +1,7 @@
-#!/usr/bin/env -S gawk -v ORS= -f
+#!/usr/bin/env -S gawk -f
+BEGIN{
+	ORS=""
+}
 match($0, /^([0-9]* )?([-bcdlps])([-r][-w][-xsS])([-r][-w][-xsS])([-r][-w][-xtT])( +[0-9]+ +)(\w+ +)(\w+)( +[0-9\.]+[KMGT]?)(.*$)/, a) {
 	# type/perms
 	match(a[10], /\033[^m]*m/, fcolor)

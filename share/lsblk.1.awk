@@ -1,4 +1,7 @@
-#!/usr/bin/env -S gawk -v ORS= -f
+#!/usr/bin/env -S gawk -f
+BEGIN{
+	ORS=""
+}
 
 # Heading
 NR==1 && /^[A-Z][A-Z][A-Z]/ {
