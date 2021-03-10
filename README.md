@@ -9,9 +9,16 @@ and to serve as a hub for scripts for commonly used commands.
 
 **Arch**: Available on the AUR as `acolor-git`.
 
+**Fedora/CentOS**:  Available on COPR:
+
+```sh
+dnf copr enable gammafn/acolor
+dnf install acolor
+```
+
 **Other**: Install manually with `make`:
 
-```
+```sh
 git clone https://github.com/xPMo/acolor
 cd acolor
 sudo make install
