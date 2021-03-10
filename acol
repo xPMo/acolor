@@ -14,11 +14,11 @@ help(){
 	cat >&2 << EOF
 Usage: $0 [ -i ] [ -o str ] [ -e str ] [ -O str ] [ -h | -H ]  command [ args ... ]
 
-	-u       Force using unbuffer if installed
-	-U       Don't use unbuffer
+	-u       Force using stdbuf if installed
+	-U       Don't use stdbuf
 	-i       colorize from stdin instead of command (combine with one of -[oeO]
-	-o str   colorize stdout using the given file or spec
-	-e str   colorize stderr using the given file or spec
+	-o str   colorize stdout using the given file or spec (default)
+	-e str   colorize stderr using the given file or spec (disables default stdout coloring)
 	-O str   colorize both stdour and stderr the given file or spec
 	-h       show this help and exit
 	-H       show more help and exit
@@ -47,8 +47,8 @@ while getopts 'ie:o:O:uUhH' o; do
 			ospec="$OPTARG"
 			espec="$OPTARG"
 		;;
-		u) unbuffer=2  ;;
-		U) unbuffer=0 ;;
+		u) stdbuf=2  ;;
+		U) stdbuf=0 ;;
 		h)
 			help
 			exit 0
@@ -101,16 +101,23 @@ stdout_cmd="$REPLY"
 getf "$1" 2 "$espec"
 stderr_cmd="$REPLY"
 
-if (( in )); then
-	exec 2> >("$stderr_cmd" >&2)
-	exec "$stdout_cmd"
+if ((stdbuf == 2)) || [[ -t 0 ]] && ((stdbuf)); then
+	command -v stdbuf >/dev/null && {
+		buf=(stdbuf -oL)
+	}
 fi
-# no colorizer found, just exec
-(( ${#stdout_cmd} + ${#stderr_cmd} )) || exec "$@"
 
-if ((unbuffer == 2)) || [[ -t 0 ]] && ((unbuffer)); then
-	command -v unbuffer >/dev/null && set -- unbuffer "$@"
+if ((in)); then
+	[[ -n $stderr_cmd ]] && exec 2> >("${stderr_cmd[@]}" >&2)
+	exec "${stdout_cmd[@]}"
+else
+	# Set COMMAND equal to the quoted command
+	cmd="${*@Q}"
+	[[ -n $stderr_cmd ]] && exec 2> >(COMMAND="$cmd"  "${buf[@]}" "$stderr_cmd")
+	# no colorizer found, just exec
+	[[ -n $stdout_cmd ]] || exec "$@"
+	exec "$@" | COMMAND="$cmd" "${buf[@]}" "$stdout_cmd"
 fi
-# set COMMAND to the command being run (quoted)
-export COMMAND="${*@Q}"
-"$@" 2> >("$stderr_cmd" >&2) | "$stdout_cmd"
+
+
+
