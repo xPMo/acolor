@@ -1,4 +1,4 @@
-#!/usr/bin/env -S sed -E -f
+#!/usr/bin/env -S sed -Ef
 s/^0/\x1b[38;5;8m&/
 /^[1-9]/{
 	s/^[^\t]+[K]/\x1b[38;5;2m&/;t file

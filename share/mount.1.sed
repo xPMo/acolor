@@ -1,4 +1,4 @@
-#!/usr/bin/env -S sed -E -f
+#!/usr/bin/env -S sed -Ef
 s/^(devtmpfs|tmpfs|cgroup2?|) on .*/\x1b[38;5;8m&\x[0m/;t
 s:^/(.*)/([^/]*) on :\x1b[38;5;6m/\1/\x1b[1m\2\x1b[0m on :;t rest
 s/^[^ ]*/\x1b[38;5;2m&\x1b[0m/
