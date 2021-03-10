@@ -1,7 +1,7 @@
 %global srcname copr-
 
 Name: acolor
-Version: 0.3
+Version: 0.3.1
 Release: 0%{?dist}
 License: GPLv3
 Summary: A trivial python 3 program for demonstrating RPM packaging
@@ -14,6 +14,7 @@ BuildRequires: make
 Requires: bash
 Requires: gawk
 Requires: sed
+Recommends: expect
 
 %description
 TODO
