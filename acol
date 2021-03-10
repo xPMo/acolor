@@ -101,7 +101,7 @@ stdout_cmd="$REPLY"
 getf "$1" 2 "$espec"
 stderr_cmd="$REPLY"
 
-buf()
+buf=()
 if ((unbuf == 2)) || [[ -t 0 ]] && ((unbuf)); then
 	command -v unbuffer >/dev/null && {
 		buf=(unbuffer)
@@ -114,10 +114,10 @@ if ((in)); then
 else
 	# Set COMMAND equal to the quoted command
 	cmd="${*@Q}"
-	[[ -n $stderr_cmd ]] && exec 2> >(COMMAND="$cmd"  "${buf[@]}" "$stderr_cmd")
+	[[ -n $stderr_cmd ]] && exec 12> >(COMMAND="$cmd" "$stderr_cmd")
 	# no colorizer found, just exec
 	[[ -n $stdout_cmd ]] || exec "$@"
-	exec "${buf[@]}" "$@" | COMMAND="$cmd" "${buf[@]}" "$stdout_cmd"
+	exec "${buf[@]}" "$@" 2>&12 | COMMAND="$cmd" "$stdout_cmd"
 fi
 
 
