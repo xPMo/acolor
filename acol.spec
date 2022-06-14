@@ -1,10 +1,10 @@
 %global srcname copr-
 
 Name: acolor
-Version: 0.3.1
+Version: 0.4
 Release: 0%{?dist}
 License: GPLv3
-Summary: A trivial python 3 program for demonstrating RPM packaging
+Summary: Yet another ANSI colorizer
 Url: https://github.com/xPMo/acolor
 Source0: https://github.com/xPMo/%{name}/archive/%{version}.tar.gz
 
